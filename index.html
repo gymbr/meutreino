@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Treino</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/Favicon.png" type="image/jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #212121;
+            --card-color: #2c2c2c;
+            --text-color: #f0f0f0;
+            --secondary-text-color: #a0a0a0;
+            --primary-color: #ffc107;
+            --border-radius: 12px;
+            --input-bg-color: #383838;
+            --switch-bg-off: #555;
+            --switch-bg-on: #4CAF50;
+            --switch-circle: #f0f0f0;
+            --image-size-desktop: 94.5px; /* 90px + 5% */
+            --image-size-mobile: 87px;   /* 80px + 5% */
+        }
+
+        /* Usando box-sizing para evitar problemas de layout */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--input-bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: var(--bg-color);
+        }
+
+        .header .title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .header .title img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            border-radius: 5px; /* Arredonda a imagem do cabeçalho */
+        }
+
+        .header .edit-btn, .header .save-btn {
+            color: var(--primary-color);
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .header .edit-btn:hover, .header .save-btn:hover {
+            color: #ffd54f;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            background-color: var(--bg-color);
+            position: sticky;
+            top: 49px;
+            z-index: 9;
+            border-bottom: 1px solid var(--input-bg-color);
+        }
+
+        .tabs a {
+            color: var(--secondary-text-color);
+            font-weight: bold;
+            text-decoration: none;
+            padding-bottom: 8px;
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+
+        .tabs a.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .exercise-card {
+            display: flex;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+            position: relative;
+            width: 355px; /* Largura fixa para os cartões */
+            max-width: 100%; /* Garante que não ultrapasse a largura da tela em dispositivos menores */
+        }
+        .exercise-card.sortable-chosen {
+            background-color: #4CAF50;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .exercise-card .video-placeholder {
+            min-width: var(--image-size-desktop);
+            height: var(--image-size-desktop);
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .exercise-card .video-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.2s ease-in-out;
+            border-radius: var(--border-radius);
+        }
+        
+        .exercise-card .video-placeholder .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--secondary-text-color);
+            font-size: 0.8rem;
+            display: none;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .exercise-card .content {
+            padding: 12px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .exercise-card .content h3 {
+            margin: 0 50px 8px 0; /* Adiciona margem para evitar sobreposição */
+            font-size: 1rem;
+            font-weight: bold;
+            word-wrap: break-word; /* Permite quebra de linha para títulos longos */
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .details .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .details .input-group label {
+            font-size: 0.75rem;
+            color: var(--secondary-text-color);
+            margin-bottom: 4px;
+        }
+
+        .details .input-field {
+            display: flex;
+            background-color: var(--input-bg-color);
+            border-radius: 8px;
+            padding: 6px 12px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .details .input-field input {
+            background: none;
+            border: none;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            width: 50px;
+            flex-grow: 1;
+            -moz-appearance: textfield;
+            color: #ffffff; /* Cor branca para os números */
+        }
+
+        .details .input-field input::-webkit-outer-spin-button,
+        .details .input-field input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .details .input-field input:focus {
+            outline: none;
+        }
+
+        .details .input-field input[disabled] {
+            color: #ffffff; /* Força a cor branca mesmo quando desabilitado */
+            cursor: not-allowed;
+        }
+
+        .details .input-field i,
+        .details .input-field span {
+            font-size: 0.75rem;
+            color: var(--secondary-text-color);
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+
+        /* Botão de Remover */
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 24px;
+            height: 24px;
+            background-color: #f44336;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 5;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+        .editing .remove-btn {
+            opacity: 1;
+        }
+
+        /* Switch Toggle Styles */
+        .switch-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 5;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--switch-bg-off);
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--switch-circle);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--switch-bg-on);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--switch-bg-on);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* FAB Buttons */
+        .fab-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px auto;
+            max-width: 1200px;
+            padding: 0 16px;
+        }
+        .fab-buttons-container:not(.show) {
+            display: none;
+        }
+        .fab-button {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .fab-button:hover {
+            background-color: #ffd54f;
+        }
+
+        /* Modal para adicionar exercício */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-content h2 {
+            margin: 0 0 16px;
+            font-size: 1.25rem;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 12px;
+        }
+
+        .modal-content .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--secondary-text-color);
+            margin-bottom: 4px;
+        }
+
+        .modal-content .form-group input {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--input-bg-color);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .modal-content .form-group input:focus {
+            outline: none;
+            border: 1px solid var(--primary-color);
+        }
+
+        .modal-content .btn {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .modal-content .btn:hover {
+            background-color: #ffd54f;
+        }
+
+        /* Modal para expandir a imagem */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: var(--border-radius);
+            object-fit: contain;
+        }
+        
+        /* Pop-up de Conclusão */
+        .popup {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            z-index: 101;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+        .popup.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Rodapé no final da página */
+        .footer {
+            text-align: center;
+            padding: 8px 16px;
+            color: var(--secondary-text-color);
+            font-size: 0.875rem;
+            background-color: #282828;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        /* Info do Último Treino */
+        .last-workout-info {
+            background-color: var(--card-color);
+            color: var(--text-color);
+            padding: 12px 16px;
+            margin: 16px;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            text-align: center;
+        }
+        .last-workout-info p {
+            margin: 0;
+            color: var(--secondary-text-color);
+        }
+        .last-workout-info span {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Otimização para telas pequenas */
+        @media (max-width: 600px) {
+            .exercise-card {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .exercise-card .video-placeholder {
+                min-width: var(--image-size-mobile);
+                height: var(--image-size-mobile);
+            }
+            .exercise-card .content {
+                padding: 8px;
+            }
+            .details {
+                gap: 4px;
+                justify-content: flex-start;
+            }
+            .details .input-group {
+                min-width: 75px;
+                flex-basis: auto;
+            }
+            .details .input-field {
+                padding: 4px 6px;
+            }
+            .details .input-field input {
+                width: 40px;
+                font-size: 0.85rem;
+            }
+            .details .input-field i,
+            .details .input-field span {
+                font-size: 0.65rem;
+                margin-left: 2px;
+            }
+            .fab-buttons-container {
+                flex-direction: row;
+                gap: 8px;
+            }
+            .fab-button {
+                width: 48px;
+                height: 48px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="title">
+            <img src="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/IconeTreino.jpg" alt="Ícone de Treino">
+            Meu Treino
+        </span>
+        <span class="edit-btn" id="edit-save-btn" onclick="handleEditSave()">Editar</span>
+    </div>
+
+    <div class="last-workout-info">
+        <p>Último Treino: <span id="last-workout-name">Nenhum</span></p>
+        <p>Data: <span id="last-workout-date">--/--/----</span></p>
+    </div>
+
+    <div class="tabs">
+        <a href="#" class="tab-link active" data-tab="treino-a" onclick="showTab('treino-a')">A (Costas)</a>
+        <a href="#" class="tab-link" data-tab="treino-b" onclick="showTab('treino-b')">B (Perna)</a>
+        <a href="#" class="tab-link" data-tab="treino-c" onclick="showTab('treino-c')">C (Peito)</a>
+    </div>
+
+    <div class="container" id="exercise-container">
+    </div>
+
+    <div id="fab-buttons-container" class="fab-buttons-container">
+        <div class="fab-button" onclick="openModal()">
+            <i class="fas fa-plus"></i>
+        </div>
+        <div class="fab-button" onclick="saveWorkoutToFile()">
+            <i class="fas fa-file-download"></i>
+        </div>
+        <div class="fab-button" onclick="loadWorkoutFromFile()">
+            <i class="fas fa-file-upload"></i>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Feito por quem treina, para quem treina. 💪❤️
+    </footer>
+
+    <div class="modal" id="add-exercise-modal">
+        <div class="modal-content">
+            <h2>Adicionar Exercício</h2>
+            <div class="form-group">
+                <label>Nome do Exercício</label>
+                <input type="text" id="exercise-name" placeholder="Digite o nome do exercício">
+            </div>
+            <div class="form-group">
+                <label>URL da Imagem</label>
+                <input type="text" id="exercise-image" placeholder="Digite a URL da imagem">
+            </div>
+            <div class="form-group">
+                <label>Séries</label>
+                <input type="number" id="exercise-series" min="1" value="3">
+            </div>
+            <div class="form-group">
+                <label>Repetições</label>
+                <input type="number" id="exercise-reps" min="1" value="10">
+            </div>
+            <button class="btn" onclick="addExercise()">Adicionar</button>
+        </div>
+    </div>
+
+    <div class="image-modal" id="image-modal" onclick="closeImageModal()">
+        <img id="expanded-image" src="" alt="Imagem expandida">
+    </div>
+    
+    <div class="popup" id="completion-popup">Parabéns, treino concluído!</div>
+
+    <script>
+        let currentTab = 'treino-a';
+        let isEditing = false;
+        let sortableInstance = null;
+
+        let workouts = {
+            'treino-a': JSON.parse(localStorage.getItem('treino-a')) || [],
+            'treino-b': JSON.parse(localStorage.getItem('treino-b')) || [],
+            'treino-c': JSON.parse(localStorage.getItem('treino-c')) || []
+        };
+        
+        const tabNames = {
+            'treino-a': 'Treino A',
+            'treino-b': 'Treino B',
+            'treino-c': 'Treino C'
+        };
+
+        function saveWorkout() {
+            localStorage.setItem(currentTab, JSON.stringify(workouts[currentTab]));
+        }
+
+        function updateWorkout(element) {
+            const card = element.closest('.exercise-card');
+            const cardIndex = Array.from(card.parentNode.children).indexOf(card);
+            
+            const seriesInput = card.querySelector('.input-group:nth-child(1) input');
+            const repsInput = card.querySelector('.input-group:nth-child(2) input');
+            const weightInput = card.querySelector('.input-group:nth-child(3) input');
+
+            if (seriesInput) workouts[currentTab][cardIndex].series = seriesInput.value;
+            if (repsInput) workouts[currentTab][cardIndex].reps = repsInput.value;
+            if (weightInput) workouts[currentTab][cardIndex].weight = weightInput.value;
+        }
+        
+        function toggleCompleted(element) {
+            const card = element.closest('.exercise-card');
+            const cardIndex = Array.from(card.parentNode.children).indexOf(card);
+            
+            workouts[currentTab][cardIndex].completed = element.checked;
+            saveWorkout();
+
+            checkWorkoutCompletion();
+        }
+        
+        function resetAllSwitches() {
+            for (let tab in workouts) {
+                workouts[tab].forEach(ex => ex.completed = false);
+                localStorage.setItem(tab, JSON.stringify(workouts[tab]));
+            }
+            renderWorkouts(workouts[currentTab]);
+        }
+
+        function checkWorkoutCompletion() {
+            const totalExercises = workouts[currentTab].length;
+            const completedExercises = workouts[currentTab].filter(ex => ex.completed).length;
+
+            if (totalExercises > 0 && totalExercises === completedExercises) {
+                showCompletionPopup();
+                saveLastWorkout();
+                setTimeout(() => {
+                    resetAllSwitches();
+                }, 1000); 
+            }
+        }
+        
+        function showCompletionPopup() {
+            const popup = document.getElementById('completion-popup');
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+
+        function saveLastWorkout() {
+            const today = new Date();
+            const date = today.toLocaleDateString('pt-BR');
+            const workout = tabNames[currentTab];
+            localStorage.setItem('last-workout', JSON.stringify({ name: workout, date }));
+            updateLastWorkoutInfo();
+        }
+
+        function updateLastWorkoutInfo() {
+            const info = JSON.parse(localStorage.getItem('last-workout'));
+            const nameElement = document.getElementById('last-workout-name');
+            const dateElement = document.getElementById('last-workout-date');
+
+            if (info) {
+                nameElement.textContent = info.name;
+                dateElement.textContent = info.date;
+            }
+        }
+
+        function removeExercise(element) {
+            const card = element.closest('.exercise-card');
+            const cardIndex = Array.from(card.parentNode.children).indexOf(card);
+            
+            if (confirm("Tem certeza que deseja remover este exercício?")) {
+                workouts[currentTab].splice(cardIndex, 1);
+                renderWorkouts(workouts[currentTab]);
+                saveWorkout();
+            }
+        }
+
+        function handleEditSave() {
+            isEditing = !isEditing;
+            
+            if (!isEditing) {
+                saveWorkout();
+            }
+            
+            renderWorkouts(workouts[currentTab]);
+            updateButtonState();
+        }
+
+        function updateButtonState() {
+            const editButton = document.getElementById('edit-save-btn');
+            const fabContainer = document.getElementById('fab-buttons-container');
+            if (isEditing) {
+                editButton.textContent = 'Salvar';
+                editButton.classList.remove('edit-btn');
+                editButton.classList.add('save-btn');
+                fabContainer.classList.add('show');
+                setupSortable();
+            } else {
+                editButton.textContent = 'Editar';
+                editButton.classList.remove('save-btn');
+                editButton.classList.add('edit-btn');
+                if (fabContainer) {
+                    fabContainer.classList.remove('show');
+                }
+                if (sortableInstance) {
+                    sortableInstance.destroy();
+                    sortableInstance = null;
+                }
+            }
+        }
+
+        function openModal() {
+            document.getElementById('add-exercise-modal').style.display = 'flex';
+        }
+
+        function addExercise() {
+            const name = document.getElementById('exercise-name').value;
+            const image = document.getElementById('exercise-image').value;
+            const series = document.getElementById('exercise-series').value;
+            const reps = document.getElementById('exercise-reps').value;
+
+            if (!name || series < 1 || reps < 1) {
+                alert('Por favor, preencha todos os campos corretamente.');
+                return;
+            }
+
+            workouts[currentTab].push({ name, image, series, reps, weight: "0", completed: false });
+            
+            renderWorkouts(workouts[currentTab]);
+            saveWorkout();
+
+            document.getElementById('add-exercise-modal').style.display = 'none';
+            document.getElementById('exercise-name').value = '';
+            document.getElementById('exercise-image').value = '';
+            document.getElementById('exercise-series').value = '3';
+            document.getElementById('exercise-reps').value = '10';
+        }
+        
+        function renderWorkouts(data) {
+            const container = document.getElementById('exercise-container');
+            container.innerHTML = '';
+            
+            const isEditingMode = isEditing;
+            const defaultImage = "https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/IconeTreino.jpg";
+            
+            data.forEach((workout, index) => {
+                const card = document.createElement('div');
+                card.className = 'exercise-card';
+                if (isEditingMode) {
+                    card.classList.add('editing');
+                }
+                
+                card.innerHTML = `
+                    ${isEditingMode ? `<div class="remove-btn" onclick="removeExercise(this)"><i class="fas fa-minus"></i></div>` : ''}
+                    <div class="switch-container">
+                        <label class="switch">
+                            <input type="checkbox" ${workout.completed ? 'checked' : ''} onchange="toggleCompleted(this)" ${isEditingMode ? '' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="video-placeholder" onclick="expandImage('${workout.image || defaultImage}')">
+                        <img class="exercise-image" src="${workout.image || defaultImage}" alt="${workout.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="error-message">No image</div>
+                    </div>
+                    <div class="content">
+                        <h3>${workout.name}</h3>
+                        <div class="details">
+                            <div class="input-group">
+                                <label>Séries</label>
+                                <div class="input-field">
+                                    <input type="number" value="${workout.series}" min="1" onchange="updateWorkout(this)" ${isEditingMode ? '' : 'disabled'}>
+                                    <i class="fas fa-list-ul"></i>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Repetições</label>
+                                <div class="input-field">
+                                    <input type="number" value="${workout.reps}" min="1" onchange="updateWorkout(this)" ${isEditingMode ? '' : 'disabled'}>
+                                    <i class="fas fa-sync-alt"></i>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Peso</label>
+                                <div class="input-field">
+                                    <input type="number" value="${workout.weight || "0"}" min="0" onchange="updateWorkout(this)" ${isEditingMode ? '' : 'disabled'}>
+                                    <span>Kg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function setupSortable() {
+            const container = document.getElementById('exercise-container');
+            if (sortableInstance) {
+                sortableInstance.destroy();
+            }
+            sortableInstance = new Sortable(container, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                delay: 200,
+                onEnd: function (evt) {
+                    const oldIndex = evt.oldIndex;
+                    const newIndex = evt.newIndex;
+                    const movedItem = workouts[currentTab].splice(oldIndex, 1)[0];
+                    workouts[currentTab].splice(newIndex, 0, movedItem);
+                    saveWorkout();
+                }
+            });
+        }
+
+        function expandImage(src) {
+            const imageModal = document.getElementById('image-modal');
+            const expandedImage = document.getElementById('expanded-image');
+            expandedImage.src = src;
+            imageModal.style.display = 'flex';
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').style.display = 'none';
+        }
+        
+        function saveWorkoutToFile() {
+            const data = JSON.stringify(workouts, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const today = new Date().toISOString().slice(0, 10);
+            a.download = `meu-treino-${today}.json`;
+            a.href = url;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadWorkoutFromFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const loadedData = JSON.parse(event.target.result);
+                        if (loadedData['treino-a'] && loadedData['treino-b'] && loadedData['treino-c']) {
+                            workouts = loadedData;
+                            localStorage.setItem('treino-a', JSON.stringify(workouts['treino-a']));
+                            localStorage.setItem('treino-b', JSON.stringify(workouts['treino-b']));
+                            localStorage.setItem('treino-c', JSON.stringify(workouts['treino-c']));
+                            alert('Treinos carregados com sucesso!');
+                            location.reload();
+                        } else {
+                            alert('O arquivo não é um backup de treino válido.');
+                        }
+                    } catch (error) {
+                        alert('Erro ao carregar o arquivo. Verifique se é um arquivo JSON válido.');
+                        console.error(error);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            currentTab = tabName;
+            
+            isEditing = false;
+            
+            renderWorkouts(workouts[currentTab]);
+            updateButtonState();
+            localStorage.setItem('lastActiveTab', tabName);
+        }
+
+        window.onload = () => {
+            const savedWorkoutsA = JSON.parse(localStorage.getItem('treino-a'));
+            if (savedWorkoutsA) {
+                workouts['treino-a'] = savedWorkoutsA;
+            }
+            const savedWorkoutsB = JSON.parse(localStorage.getItem('treino-b'));
+            if (savedWorkoutsB) {
+                workouts['treino-b'] = savedWorkoutsB;
+            }
+            const savedWorkoutsC = JSON.parse(localStorage.getItem('treino-c'));
+            if (savedWorkoutsC) {
+                workouts['treino-c'] = savedWorkoutsC;
+            }
+            
+            const lastActiveTab = localStorage.getItem('lastActiveTab');
+            showTab(lastActiveTab || 'treino-a');
+            updateLastWorkoutInfo();
+        };
+    </script>
+</body>
+</html>
