@@ -43,6 +43,10 @@
             padding: 16px;
             max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
         }
 
         .header {
@@ -68,7 +72,7 @@
             width: 24px;
             height: 24px;
             margin-right: 8px;
-            border-radius: 5px; /* Arredonda a imagem do cabeçalho */
+            border-radius: 5px;
         }
 
         .header .edit-btn, .header .save-btn {
@@ -113,8 +117,8 @@
             margin-bottom: 16px;
             overflow: hidden;
             position: relative;
-            width: 330px; /* Largura fixa para os cartões */
-            max-width: 100%; /* Garante que não ultrapasse a largura da tela em dispositivos menores */
+            flex: 1 1 300px;
+            max-width: 100%;
         }
         .exercise-card.sortable-chosen {
             background-color: #4CAF50;
@@ -164,25 +168,23 @@
         }
 
         .exercise-card .content h3 {
-            margin: 0 50px 8px 0; /* Adiciona margem para evitar sobreposição */
+            margin: 0 50px 8px 0;
             font-size: 1rem;
             font-weight: bold;
-            word-wrap: break-word; /* Permite quebra de linha para títulos longos */
+            word-wrap: break-word;
         }
 
         .details {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         .details .input-group {
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 1;
-            min-width: 80px;
+            flex-grow: 1;
         }
 
         .details .input-group label {
@@ -211,7 +213,7 @@
             width: 50px;
             flex-grow: 1;
             -moz-appearance: textfield;
-            color: #ffffff; /* Cor branca para os números */
+            color: #ffffff;
         }
 
         .details .input-field input::-webkit-outer-spin-button,
@@ -225,7 +227,7 @@
         }
 
         .details .input-field input[disabled] {
-            color: #ffffff; /* Força a cor branca mesmo quando desabilitado */
+            color: #ffffff;
             cursor: not-allowed;
         }
 
@@ -507,11 +509,11 @@
             }
             .details {
                 gap: 4px;
-                justify-content: flex-start;
             }
             .details .input-group {
+                flex-basis: 0;
+                flex-grow: 1;
                 min-width: 75px;
-                flex-basis: auto;
             }
             .details .input-field {
                 padding: 4px 6px;
@@ -533,6 +535,22 @@
                 width: 48px;
                 height: 48px;
                 font-size: 1.5rem;
+            }
+            
+            /* Ajuste específico para que "Séries" e "Peso" fiquem menores */
+            .details .input-group:nth-child(1),
+            .details .input-group:nth-child(3) {
+                min-width: 55px;
+            }
+        }
+        
+        /* Ajuste para telas muito pequenas, forçando o alinhamento */
+        @media (max-width: 368px) {
+            .details .input-group {
+                min-width: 80px;
+            }
+            .details .input-field input {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -903,13 +921,16 @@
         }
 
         function showTab(tabName) {
+            // Salva o treino da aba atual antes de mudar
+            if (currentTab) {
+                saveWorkout();
+            }
+            
             document.querySelectorAll('.tab-link').forEach(tab => {
                 tab.classList.remove('active');
             });
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
             currentTab = tabName;
-            
-            isEditing = false;
             
             renderWorkouts(workouts[currentTab]);
             updateButtonState();
