@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Treino</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/Favicon.png" type="image/jpg">
+    <link rel="icon" href="https://raw.githubusercontent.com/Dex6354/MeuTreino/refs/heads/main/Favicon.png" type="image/jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
     <style>
@@ -23,7 +23,6 @@
             --image-size-mobile: 87px;   /* 80px + 5% */
         }
 
-        /* Usando box-sizing para evitar problemas de layout */
         *, *::before, *::after {
             box-sizing: border-box;
         }
@@ -34,7 +33,7 @@
             color: var(--text-color);
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            min-height: 10vh;
             display: flex;
             flex-direction: column;
         }
@@ -43,10 +42,6 @@
             padding: 16px;
             max-width: 1200px;
             margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1px;
-            justify-content: center;
         }
 
         .header {
@@ -97,15 +92,27 @@
             border-bottom: 1px solid var(--input-bg-color);
         }
 
-        .tabs a {
+        .tabs .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tabs .tab-item a, .tabs .tab-item input {
             color: var(--secondary-text-color);
             font-weight: bold;
             text-decoration: none;
             padding-bottom: 8px;
             transition: color 0.3s, border-bottom 0.3s;
+            background: none;
+            border: none;
+            text-align: center;
+            font-size: 1rem;
+            width: 80px;
+            outline: none;
         }
 
-        .tabs a.active {
+        .tabs .tab-item a.active, .tabs .tab-item input:focus {
             color: var(--primary-color);
             border-bottom: 2px solid var(--primary-color);
         }
@@ -115,9 +122,9 @@
             background-color: var(--card-color);
             border-radius: var(--border-radius);
             margin-bottom: 16px;
-            overflow: hidden;
+            overflow: visible;
             position: relative;
-            flex: 1 1 300px;
+            width: 355px;
             max-width: 100%;
         }
         .exercise-card.sortable-chosen {
@@ -147,7 +154,7 @@
             transition: transform 0.2s ease-in-out;
             border-radius: var(--border-radius);
         }
-        
+
         .exercise-card .video-placeholder .error-message {
             position: absolute;
             top: 50%;
@@ -165,26 +172,56 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
-        .exercise-card .content h3 {
-            margin: 0 50px 8px 0;
+        .exercise-card .content .name-container {
+            position: relative;
+            width: 100%;
+            padding-right: 40px;
+        }
+
+        .exercise-card .content .name-container h3 {
+            margin: 0 0 8px 0;
             font-size: 1rem;
             font-weight: bold;
             word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .exercise-card .content .name-container .editable-name {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 0;
+            outline: none;
+            border-bottom: 1px solid transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            min-height: 2.2em;
+            resize: vertical;
+            overflow: hidden;
+        }
+
+        .exercise-card .content .name-container .editable-name:focus {
+            border-bottom: 1px solid var(--primary-color);
         }
 
         .details {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .details .input-group {
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex-grow: 1;
+            flex: 1;
+            min-width: 80px;
         }
 
         .details .input-group label {
@@ -239,8 +276,6 @@
             flex-shrink: 0;
         }
 
-
-        /* Botão de Remover */
         .remove-btn {
             position: absolute;
             top: 5px;
@@ -263,7 +298,6 @@
             opacity: 1;
         }
 
-        /* Switch Toggle Styles */
         .switch-container {
             position: absolute;
             top: 10px;
@@ -320,7 +354,6 @@
             transform: translateX(20px);
         }
 
-        /* FAB Buttons */
         .fab-buttons-container {
             display: flex;
             justify-content: center;
@@ -351,7 +384,6 @@
             background-color: #ffd54f;
         }
 
-        /* Modal para adicionar exercício */
         .modal {
             display: none;
             position: fixed;
@@ -380,6 +412,7 @@
 
         .modal-content .form-group {
             margin-bottom: 12px;
+            position: relative;
         }
 
         .modal-content .form-group label {
@@ -404,6 +437,44 @@
             border: 1px solid var(--primary-color);
         }
 
+        /* --- ESTILOS PARA O AUTOCOMPLETE GLOBAL --- */
+        #autocomplete-suggestions {
+            position: absolute;
+            background-color: var(--input-bg-color);
+            border: 1px solid var(--primary-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            z-index: 101;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 325px;
+        }
+
+        .suggestion-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestion-item:hover {
+            background-color: #555;
+        }
+
+        .suggestion-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        /* --- FIM DOS ESTILOS AUTOCOMPLETE --- */
+
         .modal-content .btn {
             background-color: var(--primary-color);
             color: var(--bg-color);
@@ -415,13 +486,13 @@
             font-size: 1rem;
             font-weight: bold;
             transition: background-color 0.3s;
+            margin-top: 10px;
         }
 
         .modal-content .btn:hover {
             background-color: #ffd54f;
         }
 
-        /* Modal para expandir a imagem */
         .image-modal {
             display: none;
             position: fixed;
@@ -432,17 +503,64 @@
             background-color: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             justify-content: center;
+            /* align-items: center; Removido para permitir o ajuste da posição vertical */
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .image-modal-content {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
+            width: 90%;
+            max-width: 500px;
+            gap: 20px;
+            max-height: 90vh; /* Altura máxima para caber na tela */
+            overflow-y: auto; /* Rolagem interna */
+            position: relative; /* Necessário para posicionar o botão de fechar */
         }
 
         .image-modal img {
-            max-width: 90%;
-            max-height: 90%;
+            max-width: 100%;
+            height: auto;
             border-radius: var(--border-radius);
             object-fit: contain;
         }
-        
-        /* Pop-up de Conclusão */
+
+        .modal-text-content {
+            width: 100%;
+            text-align: left;
+        }
+
+        .modal-text-content h3 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--input-bg-color);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .modal-text-content p {
+            margin: 0 0 10px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .modal-text-content ul {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .modal-text-content li {
+            margin-bottom: 5px;
+        }
+
         .popup {
             position: fixed;
             bottom: 60px;
@@ -464,7 +582,6 @@
             pointer-events: all;
         }
 
-        /* Rodapé no final da página */
         .footer {
             text-align: center;
             padding: 8px 16px;
@@ -475,7 +592,6 @@
             width: 100%;
         }
 
-        /* Info do Último Treino */
         .last-workout-info {
             background-color: var(--card-color);
             color: var(--text-color);
@@ -494,7 +610,6 @@
             font-weight: bold;
         }
 
-        /* Otimização para telas pequenas */
         @media (max-width: 600px) {
             .exercise-card {
                 flex-direction: row;
@@ -509,11 +624,11 @@
             }
             .details {
                 gap: 4px;
+                justify-content: flex-start;
             }
             .details .input-group {
-                flex-basis: 0;
-                flex-grow: 1;
                 min-width: 75px;
+                flex-basis: auto;
             }
             .details .input-field {
                 padding: 4px 6px;
@@ -536,29 +651,13 @@
                 height: 48px;
                 font-size: 1.5rem;
             }
-            
-            /* Ajuste específico para que "Séries" e "Peso" fiquem menores */
-            .details .input-group:nth-child(1),
-            .details .input-group:nth-child(3) {
-                min-width: 55px;
-            }
-        }
-        
-        /* Ajuste para telas muito pequenas, forçando o alinhamento */
-        @media (max-width: 368px) {
-            .details .input-group {
-                min-width: 80px;
-            }
-            .details .input-field input {
-                font-size: 0.8rem;
-            }
         }
     </style>
 </head>
 <body>
     <div class="header">
         <span class="title">
-            <img src="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/IconeTreino.jpg" alt="Ícone de Treino">
+            <img src="https://raw.githubusercontent.com/Dex6354/MeuTreino/refs/heads/main/IconeTreino.jpg" alt="Ícone de Treino">
             Meu Treino
         </span>
         <span class="edit-btn" id="edit-save-btn" onclick="handleEditSave()">Editar</span>
@@ -570,16 +669,22 @@
     </div>
 
     <div class="tabs">
-        <a href="#" class="tab-link active" data-tab="treino-a" onclick="showTab('treino-a')">A (Costas)</a>
-        <a href="#" class="tab-link" data-tab="treino-b" onclick="showTab('treino-b')">B (Perna)</a>
-        <a href="#" class="tab-link" data-tab="treino-c" onclick="showTab('treino-c')">C (Peito)</a>
+        <span class="tab-item" data-tab="treino-a">
+            <a href="#" class="tab-link active" onclick="showTab('treino-a')">A (Costas)</a>
+        </span>
+        <span class="tab-item" data-tab="treino-b">
+            <a href="#" class="tab-link" onclick="showTab('treino-b')">B (Perna)</a>
+        </span>
+        <span class="tab-item" data-tab="treino-c">
+            <a href="#" class="tab-link" onclick="showTab('treino-c')">C (Peito)</a>
+        </span>
     </div>
 
     <div class="container" id="exercise-container">
     </div>
 
     <div id="fab-buttons-container" class="fab-buttons-container">
-        <div class="fab-button" onclick="openModal()">
+        <div class="fab-button" onclick="addExercise()">
             <i class="fas fa-plus"></i>
         </div>
         <div class="fab-button" onclick="saveWorkoutToFile()">
@@ -594,36 +699,166 @@
         Feito por quem treina, para quem treina. 💪❤️
     </footer>
 
-    <div class="modal" id="add-exercise-modal">
-        <div class="modal-content">
-            <h2>Adicionar Exercício</h2>
-            <div class="form-group">
-                <label>Nome do Exercício</label>
-                <input type="text" id="exercise-name" placeholder="Digite o nome do exercício">
+    <div class="image-modal" id="image-modal" onclick="closeImageModal()">
+        <div class="image-modal-content">
+            <img id="expanded-image" src="" alt="Imagem expandida">
+            <div class="modal-text-content">
+                <h3>Descrição</h3>
+                <p id="modal-description"></p>
+                <h3>Grupo Muscular</h3>
+                <p id="modal-muscle-group"></p>
+                <h3>Instruções</h3>
+                <ul id="modal-instructions"></ul>
             </div>
-            <div class="form-group">
-                <label>URL da Imagem</label>
-                <input type="text" id="exercise-image" placeholder="Digite a URL da imagem">
-            </div>
-            <div class="form-group">
-                <label>Séries</label>
-                <input type="number" id="exercise-series" min="1" value="3">
-            </div>
-            <div class="form-group">
-                <label>Repetições</label>
-                <input type="number" id="exercise-reps" min="1" value="10">
-            </div>
-            <button class="btn" onclick="addExercise()">Adicionar</button>
         </div>
     </div>
 
-    <div class="image-modal" id="image-modal" onclick="closeImageModal()">
-        <img id="expanded-image" src="" alt="Imagem expandida">
-    </div>
-    
     <div class="popup" id="completion-popup">Parabéns, treino concluído!</div>
 
+    <div id="autocomplete-suggestions"></div>
+
     <script>
+        // --- DADOS DOS EXERCÍCIOS CARREGADOS DO JSON ---
+        const exerciciosList = [
+          {
+            "codigo": 901,
+            "nome": "Agachamento na Máquina Squat",
+            "descricao": "Exercício de musculação realizado em máquina tipo squat para fortalecimento e hipertrofia de quadríceps, glúteos e posteriores, com maior estabilidade articular. Indicado para praticantes de todos os níveis.",
+            "grupoMuscular": "Perna",
+            "instrucao": "1. Ajuste a máquina (encosto/apoio) e posicione os ombros/almofadas corretamente;2. Coloque os pés na plataforma na largura dos ombros, com leve rotação externa se necessário;3. Desengate a trava (se houver) mantendo o tronco firme e abdome contraído;4. Inspire e flexione os joelhos, descendo o quadril até aproximadamente paralela ao solo;5. Mantenha coluna neutra e joelhos alinhados com os pés durante toda a descida;6. Expire e empurre a plataforma até extensão controlada dos joelhos, retornando à posição inicial;7. Reengate a trava ao final da série e repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/901.gif"
+          },
+          {
+            "codigo": 904,
+            "nome": "Rosca Bíceps Polia Alta Crossover",
+            "descricao": "Exercício isolador de bíceps realizado em crossover com polias altas, que permite trabalho bilateral e controle de amplitude para hipertrofia e equilíbrio de força entre os braços. Indicado para praticantes de todos os níveis.",
+            "grupoMuscular": "Bíceps",
+            "instrucao": "1. Posicione-se entre as polias altas do crossover;2. Segure uma alça em cada mão com as palmas para frente;3. Mantenha os cotovelos fixos e próximos ao corpo;4. Inspire e flexione os cotovelos, levando as alças em direção ao peito;5. Contraia o bíceps no ápice do movimento;6. Expire e retorne lentamente à posição inicial, estendendo completamente os braços;7. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/904.gif"
+          },
+          {
+            "codigo": 905,
+            "nome": "Power Squat",
+            "descricao": "Exercício de musculação realizado em máquina tipo Power Squat para fortalecimento e hipertrofia de quadríceps e glúteos, com foco na estabilidade do tronco. Indicado para praticantes de todos os níveis.",
+            "grupoMuscular": "Perna",
+            "instrucao": "1. Posicione-se na máquina com os ombros sob as almofadas de apoio;2. Coloque os pés na plataforma na largura dos ombros;3. Mantenha o tronco ereto e o abdome contraído;4. Inspire e flexione os joelhos, descendo até a altura desejada;5. Mantenha a coluna neutra e os joelhos alinhados com os pés;6. Expire e suba de volta à posição inicial;7. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/905.gif"
+          },
+          {
+            "codigo": 908,
+            "nome": "Remada Curvada Invertida",
+            "descricao": "Exercício de musculação para fortalecimento e hipertrofia de costas (latíssimo do dorso, romboides, trapézio), bíceps e estabilizadores do tronco. Ideal para praticantes de todos os níveis que buscam trabalhar o corpo de forma integrada.",
+            "grupoMuscular": "Costas",
+            "instrucao": "1. Posicione-se sob a barra fixa, com as mãos na largura dos ombros, em pronação (palmas para baixo) ou supinação (palmas para cima);2. Mantenha o corpo esticado e reto, com calcanhares no chão e tronco alinhado;3. Inspire e puxe o corpo para cima em direção à barra, contraindo as escápulas;4. Mantenha o abdômen contraído para evitar que o quadril caia;5. Expire e desça lentamente até a posição inicial, estendendo completamente os braços;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/908.gif"
+          },
+          {
+            "codigo": 903,
+            "nome": "Rosca Direta Alta com Halter",
+            "descricao": "Exercício isolador de bíceps com halteres, que permite um trabalho mais detalhado em cada braço e foco na amplitude de movimento. Indicado para praticantes de todos os níveis.",
+            "grupoMuscular": "Bíceps",
+            "instrucao": "1. Em pé, segure um halter em cada mão com as palmas para frente;2. Mantenha os cotovelos fixos ao lado do corpo;3. Inspire e flexione os cotovelos, elevando os halteres em direção aos ombros;4. Contraia o bíceps no ápice do movimento;5. Expire e retorne lentamente à posição inicial, estendendo completamente os braços;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/903.gif"
+          },
+          {
+            "codigo": 902,
+            "nome": "Rosca Bíceps Unilateral Polia Alta Crossover",
+            "descricao": "Exercício de bíceps realizado em crossover, que permite um trabalho isolado e unilateral, focando em simetria muscular e controle de movimento. Indicado para praticantes de todos os níveis.",
+            "grupoMuscular": "Bíceps",
+            "instrucao": "1. Posicione-se ao lado da polia alta do crossover, de frente para o aparelho;2. Segure a alça com a mão oposta, mantendo o braço estendido;3. Mantenha o cotovelo fixo;4. Inspire e puxe a alça em direção ao ombro, flexionando o cotovelo;5. Contraia o bíceps no ápice do movimento;6. Expire e retorne lentamente à posição inicial, estendendo o braço;7. Repita para o outro lado, conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/902.gif"
+          },
+          {
+            "codigo": 907,
+            "nome": "Supino 45º no Smith",
+            "descricao": "Exercício de musculação realizado no aparelho Smith, que garante maior estabilidade e segurança para trabalhar a região superior do peitoral, deltoides e tríceps. Indicado para praticantes de todos os níveis.",
+            "grupoMuscular": "Peito",
+            "instrucao": "1. Ajuste o banco em um ângulo de 45 graus e posicione-o sob a barra do Smith;2. Deite-se no banco com os pés firmes no chão, na largura dos ombros;3. Segure a barra com as mãos em pronação (palmas para frente) um pouco mais largas que a largura dos ombros;4. Desengate a trava da barra e inspire, descendo-a até o peito de forma controlada;5. Expire e empurre a barra de volta à posição inicial, estendendo completamente os braços, mas sem travar os cotovelos;6. Reengate a trava ao final da série e repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/907.gif"
+          },
+          {
+            "codigo": 900,
+            "nome": "Encolhimento de Ombro com Halteres",
+            "descricao": "Exercício de musculação para fortalecimento e hipertrofia do trapézio, com ênfase na elevação escapular. Contribui para melhora da postura e estabilidade da cintura escapular. Indicado para praticantes de musculação nível iniciante ao avançado.",
+            "grupoMuscular": "Ombro",
+            "instrucao": "1. Em pé, segure um halter em cada mão ao lado do corpo;2. Mantenha a coluna neutra e abdome contraído;3. Inspire e eleve os ombros em direção às orelhas, sem flexionar os cotovelos;4. Segure brevemente no topo contraindo o trapézio;5. Expire e desça controladamente até a posição inicial;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/900.gif"
+          },
+          {
+            "codigo": 906,
+            "nome": "Supino em Pé",
+            "descricao": "Exercício de musculação realizado em pé para fortalecimento e hipertrofia da região peitoral, com ativação secundária de deltoides e tríceps. Indicado para praticantes de todos os níveis.",
+            "grupoMuscular": "Peito",
+            "instrucao": "1. Posicione-se em frente ao aparelho ou estação, pés na largura dos ombros;2. Segure as alças ou barra à altura do peitoral com pegada pronada;3. Mantenha o tronco ereto e abdome contraído;4. Inspire e empurre as alças para frente até extensão controlada dos cotovelos, sem travar;5. Contraia o peitoral no ápice do movimento;6. Expire e retorne lentamente à posição inicial;7. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/906.gif"
+          },
+          {
+            "codigo": 909,
+            "nome": "Remada Baixa Polia",
+            "descricao": "Exercício de musculação para fortalecimento e hipertrofia da musculatura das costas, especialmente o grande dorsal. Permite um trabalho concentrado e controlável.",
+            "grupoMuscular": "Costas",
+            "instrucao": "1. Sente-se no aparelho com os pés apoiados e as pernas levemente flexionadas;2. Segure a barra em V ou o acessório de sua preferência com as palmas das mãos voltadas uma para a outra;3. Mantenha a coluna ereta e o tronco ligeiramente inclinado para frente;4. Inspire e puxe a barra em direção ao abdômen, levando os ombros para trás e contraindo as escápulas;5. Mantenha os cotovelos próximos ao corpo;6. Expire e retorne lentamente à posição inicial, estendendo completamente os braços;7. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/909.gif"
+          },
+          {
+            "codigo": 910,
+            "nome": "Crucifixo Inclinado com Halteres",
+            "descricao": "Exercício de musculação para isolamento e hipertrofia da parte superior do peitoral, além de trabalhar os deltoides anteriores. A inclinação do banco aumenta o foco na porção clavicular do peito.",
+            "grupoMuscular": "Peito",
+            "instrucao": "1. Deite-se em um banco inclinado (30 a 45 graus) com um halter em cada mão;2. Mantenha os pés firmes no chão e a coluna neutra;3. Comece com os halteres acima do peito, com os cotovelos levemente flexionados;4. Inspire e abra os braços para os lados de forma controlada, sentindo o alongamento do peitoral;5. Expire e retorne os halteres à posição inicial, contraindo o peito no movimento;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/910.gif"
+          },
+          {
+            "codigo": 911,
+            "nome": "Elevação Frontal com Barra",
+            "descricao": "Exercício de musculação isolador para os deltoides anteriores, visando fortalecer e hipertrofiar a parte frontal do ombro. Pode ser realizado com barra reta ou W.",
+            "grupoMuscular": "Ombro",
+            "instrucao": "1. Em pé, segure a barra com as mãos na largura dos ombros, em pronação (palmas para baixo);2. Mantenha o corpo ereto, o abdômen contraído e os joelhos levemente flexionados;3. Inspire e eleve a barra para frente, mantendo os cotovelos quase estendidos, até a altura dos ombros;4. Evite balançar o tronco;5. Expire e desça a barra lentamente até a posição inicial;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/911.gif"
+          },
+          {
+            "codigo": 912,
+            "nome": "Rosca Inversa na Polia",
+            "descricao": "Exercício de musculação para fortalecimento do antebraço e braquial (músculo localizado abaixo do bíceps), contribuindo para a estética do braço e força de pegada.",
+            "grupoMuscular": "Antebraço",
+            "instrucao": "1. Fique de frente para a polia baixa, segurando uma barra reta com as mãos em pronação (palmas para baixo);2. Mantenha os cotovelos fixos e próximos ao corpo;3. Inspire e flexione os cotovelos, levando a barra em direção aos ombros;4. Contraia o antebraço e o braquial no ápice do movimento;5. Expire e retorne a barra lentamente à posição inicial;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/912.gif"
+          },
+          {
+            "codigo": 913,
+            "nome": "Tríceps Pulldown na Polia Alta",
+            "descricao": "Exercício isolador para o tríceps, realizado na polia alta. Foca nas três cabeças do músculo, promovendo hipertrofia e definição.",
+            "grupoMuscular": "Tríceps",
+            "instrucao": "1. Fique de frente para a polia alta, segurando a barra ou a corda com as mãos em pronação (palmas para baixo);2. Mantenha os cotovelos próximos ao corpo;3. Inspire e empurre a barra para baixo, estendendo completamente os braços;4. Contraia o tríceps no final do movimento;5. Expire e retorne a barra lentamente à posição inicial, sem deixar os cotovelos se moverem para frente;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/913.gif"
+          },
+          {
+            "codigo": 914,
+            "nome": "Elevação de Panturrilha no Leg Press",
+            "descricao": "Exercício de musculação para isolamento e hipertrofia da panturrilha (gastrocnêmio e sóleo), utilizando a máquina Leg Press. Permite o uso de cargas elevadas de forma segura.",
+            "grupoMuscular": "Panturrilha",
+            "instrucao": "1. Sente-se no Leg Press e posicione a ponta dos pés na plataforma;2. Mantenha os joelhos ligeiramente flexionados;3. Desengate a trava da máquina e empurre a plataforma para trás, elevando o peso apenas com a força da panturrilha;4. Contraia a panturrilha no ápice do movimento;5. Retorne à posição inicial de forma controlada;6. Reengate a trava ao final da série e repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/914.gif"
+          },
+          {
+            "codigo": 915,
+            "nome": "Remada Cavalinho",
+            "descricao": "Exercício de musculação clássico para fortalecimento e hipertrofia do meio das costas, especialmente o latíssimo do dorso e os romboides. A posição do corpo permite maior foco na contração das escápulas.",
+            "grupoMuscular": "Costas",
+            "instrucao": "1. Posicione-se com as pernas abertas, tronco inclinado à frente (aproximadamente 45 graus) e o abdômen contraído;2. Segure a barra ou o acessório com ambas as mãos, com as palmas voltadas para você;3. Inspire e puxe a barra em direção ao peito, levando os cotovelos para trás;4. Contraia as escápulas no ápice do movimento;5. Expire e retorne a barra lentamente à posição inicial, estendendo completamente os braços;6. Repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/915.gif"
+          },
+          {
+            "codigo": 916,
+            "nome": "Agachamento Smith",
+            "descricao": "Exercício de musculação para fortalecer e hipertrofiar quadríceps, glúteos e posteriores, realizado no aparelho Smith Machine. A barra fixa no trilho oferece maior estabilidade e segurança, ideal para iniciantes.",
+            "grupoMuscular": "Perna",
+            "instrucao": "1. Posicione a barra na altura dos ombros e posicione-se sob ela, com os pés na largura dos ombros;2. Desengate a trava da barra e mantenha o tronco ereto e o abdômen contraído;3. Inspire e flexione os joelhos, descendo o quadril até aproximadamente paralela ao solo;4. Mantenha os joelhos alinhados com os pés;5. Expire e suba de volta à posição inicial, estendendo as pernas;6. Reengate a trava ao final da série e repita conforme prescrição.",
+            "gif_url": "https://sistemasca.blob.core.windows.net/arquivos/exercicios/916.gif"
+          }
+        ];
+        // --- FIM DOS DADOS ---
+
         let currentTab = 'treino-a';
         let isEditing = false;
         let sortableInstance = null;
@@ -633,12 +868,63 @@
             'treino-b': JSON.parse(localStorage.getItem('treino-b')) || [],
             'treino-c': JSON.parse(localStorage.getItem('treino-c')) || []
         };
-        
-        const tabNames = {
-            'treino-a': 'Treino A',
-            'treino-b': 'Treino B',
-            'treino-c': 'Treino C'
+
+        let tabNames = JSON.parse(localStorage.getItem('tabNames')) || {
+            'treino-a': 'A (Costas)',
+            'treino-b': 'B (Perna)',
+            'treino-c': 'C (Peito)'
         };
+
+        const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+        let currentActiveInput = null;
+
+        function saveTabNames() {
+            localStorage.setItem('tabNames', JSON.stringify(tabNames));
+        }
+
+        function updateTabName(element, tabId) {
+            tabNames[tabId] = element.value;
+            saveTabNames();
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.querySelector('.tabs');
+            tabsContainer.innerHTML = '';
+
+            for (const tabId in tabNames) {
+                const tabItem = document.createElement('span');
+                tabItem.className = 'tab-item';
+                tabItem.dataset.tab = tabId;
+
+                let tabContent;
+                if (isEditing) {
+                    tabContent = document.createElement('input');
+                    tabContent.type = 'text';
+                    tabContent.value = tabNames[tabId];
+                    tabContent.className = 'tab-link';
+                    tabContent.onblur = () => updateTabName(tabContent, tabId);
+                    tabContent.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            tabContent.blur();
+                        }
+                    };
+                } else {
+                    tabContent = document.createElement('a');
+                    tabContent.href = '#';
+                    tabContent.className = 'tab-link';
+                    tabContent.onclick = () => showTab(tabId);
+                    tabContent.textContent = tabNames[tabId];
+                }
+
+                if (tabId === currentTab) {
+                    tabContent.classList.add('active');
+                }
+
+                tabItem.appendChild(tabContent);
+                tabsContainer.appendChild(tabItem);
+            }
+        }
 
         function saveWorkout() {
             localStorage.setItem(currentTab, JSON.stringify(workouts[currentTab]));
@@ -647,26 +933,38 @@
         function updateWorkout(element) {
             const card = element.closest('.exercise-card');
             const cardIndex = Array.from(card.parentNode.children).indexOf(card);
-            
-            const seriesInput = card.querySelector('.input-group:nth-child(1) input');
-            const repsInput = card.querySelector('.input-group:nth-child(2) input');
-            const weightInput = card.querySelector('.input-group:nth-child(3) input');
+            const inputType = element.getAttribute('data-type');
 
-            if (seriesInput) workouts[currentTab][cardIndex].series = seriesInput.value;
-            if (repsInput) workouts[currentTab][cardIndex].reps = repsInput.value;
-            if (weightInput) workouts[currentTab][cardIndex].weight = weightInput.value;
+            if (inputType === 'name') {
+                workouts[currentTab][cardIndex].name = element.value;
+                const match = exerciciosList.find(ex => ex.nome.toLowerCase() === element.value.toLowerCase());
+                if (match) {
+                    workouts[currentTab][cardIndex].image = match.gif_url;
+                } else {
+                    workouts[currentTab][cardIndex].image = "";
+                }
+            } else {
+                const seriesInput = card.querySelector('.input-group:nth-child(1) input');
+                const repsInput = card.querySelector('.input-group:nth-child(2) input');
+                const weightInput = card.querySelector('.input-group:nth-child(3) input');
+
+                if (seriesInput) workouts[currentTab][cardIndex].series = seriesInput.value;
+                if (repsInput) workouts[currentTab][cardIndex].reps = repsInput.value;
+                if (weightInput) workouts[currentTab][cardIndex].weight = weightInput.value;
+            }
+            saveWorkout();
         }
-        
+
         function toggleCompleted(element) {
             const card = element.closest('.exercise-card');
             const cardIndex = Array.from(card.parentNode.children).indexOf(card);
-            
+
             workouts[currentTab][cardIndex].completed = element.checked;
             saveWorkout();
 
             checkWorkoutCompletion();
         }
-        
+
         function resetAllSwitches() {
             for (let tab in workouts) {
                 workouts[tab].forEach(ex => ex.completed = false);
@@ -687,7 +985,7 @@
                 }, 1000); 
             }
         }
-        
+
         function showCompletionPopup() {
             const popup = document.getElementById('completion-popup');
             popup.classList.add('show');
@@ -712,13 +1010,16 @@
             if (info) {
                 nameElement.textContent = info.name;
                 dateElement.textContent = info.date;
+            } else {
+                nameElement.textContent = 'Nenhum';
+                dateElement.textContent = '--/--/----';
             }
         }
 
         function removeExercise(element) {
             const card = element.closest('.exercise-card');
             const cardIndex = Array.from(card.parentNode.children).indexOf(card);
-            
+
             if (confirm("Tem certeza que deseja remover este exercício?")) {
                 workouts[currentTab].splice(cardIndex, 1);
                 renderWorkouts(workouts[currentTab]);
@@ -728,11 +1029,12 @@
 
         function handleEditSave() {
             isEditing = !isEditing;
-            
+
             if (!isEditing) {
                 saveWorkout();
             }
-            
+
+            renderTabs();
             renderWorkouts(workouts[currentTab]);
             updateButtonState();
         }
@@ -760,61 +1062,62 @@
             }
         }
 
-        function openModal() {
-            document.getElementById('add-exercise-modal').style.display = 'flex';
-        }
-
         function addExercise() {
-            const name = document.getElementById('exercise-name').value;
-            const image = document.getElementById('exercise-image').value;
-            const series = document.getElementById('exercise-series').value;
-            const reps = document.getElementById('exercise-reps').value;
-
-            if (!name || series < 1 || reps < 1) {
-                alert('Por favor, preencha todos os campos corretamente.');
-                return;
-            }
-
-            workouts[currentTab].push({ name, image, series, reps, weight: "0", completed: false });
-            
-            renderWorkouts(workouts[currentTab]);
+            const newExercise = {
+                name: "",
+                image: "",
+                series: "3",
+                reps: "10",
+                weight: "0",
+                completed: false
+            };
+            workouts[currentTab].push(newExercise);
             saveWorkout();
-
-            document.getElementById('add-exercise-modal').style.display = 'none';
-            document.getElementById('exercise-name').value = '';
-            document.getElementById('exercise-image').value = '';
-            document.getElementById('exercise-series').value = '3';
-            document.getElementById('exercise-reps').value = '10';
+            renderWorkouts(workouts[currentTab]);
+            const newCard = document.getElementById('exercise-container').lastElementChild;
+            const newNameInput = newCard.querySelector('.editable-name');
+            if (newNameInput) {
+                newNameInput.focus();
+            }
         }
-        
+
         function renderWorkouts(data) {
             const container = document.getElementById('exercise-container');
             container.innerHTML = '';
-            
+
             const isEditingMode = isEditing;
-            const defaultImage = "https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/IconeTreino.jpg";
-            
-            data.forEach((workout, index) => {
+            const defaultImage = "https://raw.githubusercontent.com/Dex6354/MeuTreino/refs/heads/main/IconeTreino.jpg";
+
+            data.forEach((workout) => {
                 const card = document.createElement('div');
                 card.className = 'exercise-card';
                 if (isEditingMode) {
                     card.classList.add('editing');
                 }
-                
+
+                let nameElement;
+                if (isEditingMode) {
+                    nameElement = `<div class="name-container">
+                                        <textarea data-type="name" class="editable-name" onblur="updateWorkout(this)" onkeydown="if(event.key === 'Enter') this.blur();">${workout.name}</textarea>
+                                    </div>`;
+                } else {
+                    nameElement = `<div class="name-container"><h3>${workout.name}</h3></div>`;
+                }
+
                 card.innerHTML = `
                     ${isEditingMode ? `<div class="remove-btn" onclick="removeExercise(this)"><i class="fas fa-minus"></i></div>` : ''}
                     <div class="switch-container">
                         <label class="switch">
-                            <input type="checkbox" ${workout.completed ? 'checked' : ''} onchange="toggleCompleted(this)" ${isEditingMode ? '' : ''}>
+                            <input type="checkbox" ${workout.completed ? 'checked' : ''} onchange="toggleCompleted(this)" ${isEditingMode ? 'disabled' : ''}>
                             <span class="slider"></span>
                         </label>
                     </div>
-                    <div class="video-placeholder" onclick="expandImage('${workout.image || defaultImage}')">
+                    <div class="video-placeholder" onclick="expandImage('${workout.image || defaultImage}', '${workout.name}')">
                         <img class="exercise-image" src="${workout.image || defaultImage}" alt="${workout.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="error-message">No image</div>
                     </div>
                     <div class="content">
-                        <h3>${workout.name}</h3>
+                        ${nameElement}
                         <div class="details">
                             <div class="input-group">
                                 <label>Séries</label>
@@ -842,8 +1145,11 @@
                 `;
                 container.appendChild(card);
             });
+            if(isEditingMode) {
+                setupAutocomplete();
+            }
         }
-        
+
         function setupSortable() {
             const container = document.getElementById('exercise-container');
             if (sortableInstance) {
@@ -863,17 +1169,49 @@
             });
         }
 
-        function expandImage(src) {
+        function expandImage(src, exerciseName) {
             const imageModal = document.getElementById('image-modal');
             const expandedImage = document.getElementById('expanded-image');
+            const modalDescription = document.getElementById('modal-description');
+            const modalMuscleGroup = document.getElementById('modal-muscle-group');
+            const modalInstructions = document.getElementById('modal-instructions');
+
             expandedImage.src = src;
+
+            const exerciseData = exerciciosList.find(ex => ex.nome === exerciseName);
+
+            if (exerciseData) {
+                modalDescription.textContent = exerciseData.descricao || 'Descrição não disponível.';
+                modalMuscleGroup.textContent = exerciseData.grupoMuscular || 'Grupo muscular não disponível.';
+                modalInstructions.innerHTML = '';
+                if (exerciseData.instrucao) {
+                    const instructionsArray = exerciseData.instrucao.split(';');
+                    instructionsArray.forEach(instruction => {
+                        const li = document.createElement('li');
+                        li.textContent = instruction.trim();
+                        modalInstructions.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = 'Instruções não disponíveis.';
+                    modalInstructions.appendChild(li);
+                }
+            } else {
+                modalDescription.textContent = 'Descrição não disponível.';
+                modalMuscleGroup.textContent = 'Grupo muscular não disponível.';
+                modalInstructions.innerHTML = '';
+                const li = document.createElement('li');
+                li.textContent = 'Instruções não disponíveis.';
+                modalInstructions.appendChild(li);
+            }
+
             imageModal.style.display = 'flex';
         }
 
         function closeImageModal() {
             document.getElementById('image-modal').style.display = 'none';
         }
-        
+
         function saveWorkoutToFile() {
             const data = JSON.stringify(workouts, null, 2);
             const blob = new Blob([data], { type: 'application/json' });
@@ -921,36 +1259,119 @@
         }
 
         function showTab(tabName) {
-            // Salva o treino da aba atual antes de mudar
-            if (currentTab) {
-                saveWorkout();
-            }
-            
+            currentTab = tabName;
+
             document.querySelectorAll('.tab-link').forEach(tab => {
                 tab.classList.remove('active');
             });
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            currentTab = tabName;
-            
+
+            document.querySelector(`.tab-item[data-tab="${tabName}"] .tab-link`).classList.add('active');
+
+            isEditing = false;
+            autocompleteSuggestions.style.display = 'none';
+
+            renderTabs();
             renderWorkouts(workouts[currentTab]);
             updateButtonState();
             localStorage.setItem('lastActiveTab', tabName);
         }
 
+        // --- LÓGICA DO AUTOCOMPLETE GLOBAL ---
+        function setupAutocomplete() {
+            document.querySelectorAll('.editable-name').forEach(input => {
+
+                input.addEventListener('focus', (event) => {
+                    currentActiveInput = event.target;
+                    const rect = currentActiveInput.getBoundingClientRect();
+                    autocompleteSuggestions.style.top = `${rect.bottom + window.scrollY}px`;
+                    autocompleteSuggestions.style.left = `${rect.left + window.scrollX}px`;
+                    autocompleteSuggestions.style.width = `${rect.width}px`;
+                });
+
+                input.addEventListener('input', (event) => {
+                    const inputText = event.target.value.toLowerCase();
+                    autocompleteSuggestions.innerHTML = '';
+
+                    if (inputText.length === 0) {
+                        autocompleteSuggestions.style.display = 'none';
+                        return;
+                    }
+
+                    const filteredExercises = exerciciosList.filter(ex =>
+                        ex.nome.toLowerCase().includes(inputText)
+                    );
+
+                    if (filteredExercises.length > 0) {
+                        filteredExercises.forEach(ex => {
+                            const suggestionDiv = document.createElement('div');
+                            suggestionDiv.className = 'suggestion-item';
+
+                            const img = document.createElement('img');
+                            img.src = ex.gif_url;
+                            img.alt = ex.nome;
+                            img.onerror = function() {
+                                this.src = "https://raw.githubusercontent.com/Dex6354/MeuTreino/refs/heads/main/IconeTreino.jpg";
+                            };
+
+                            const textSpan = document.createElement('span');
+                            textSpan.textContent = ex.nome;
+
+                            suggestionDiv.appendChild(img);
+                            suggestionDiv.appendChild(textSpan);
+
+                            suggestionDiv.onclick = (e) => {
+                                e.preventDefault();
+                                const card = currentActiveInput.closest('.exercise-card');
+                                const exerciseImage = card.querySelector('.exercise-image');
+                                const cardIndex = Array.from(card.parentNode.children).indexOf(card);
+
+                                currentActiveInput.value = ex.nome;
+                                exerciseImage.src = ex.gif_url;
+                                exerciseImage.style.display = 'block';
+                                exerciseImage.nextElementSibling.style.display = 'none';
+
+                                workouts[currentTab][cardIndex].name = ex.nome;
+                                workouts[currentTab][cardIndex].image = ex.gif_url;
+                                saveWorkout();
+
+                                autocompleteSuggestions.style.display = 'none';
+                            };
+                            autocompleteSuggestions.appendChild(suggestionDiv);
+                        });
+                        autocompleteSuggestions.style.display = 'block';
+                    } else {
+                        autocompleteSuggestions.style.display = 'none';
+                    }
+                });
+
+                input.addEventListener('blur', () => {
+                    setTimeout(() => {
+                        autocompleteSuggestions.style.display = 'none';
+                    }, 200);
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('#autocomplete-suggestions') && !event.target.classList.contains('editable-name')) {
+                    autocompleteSuggestions.style.display = 'none';
+                }
+            });
+        }
+        // --- FIM DA LÓGICA DO AUTOCOMPLETE ---
+
         window.onload = () => {
             const savedWorkoutsA = JSON.parse(localStorage.getItem('treino-a'));
-            if (savedWorkoutsA) {
-                workouts['treino-a'] = savedWorkoutsA;
-            }
+            if (savedWorkoutsA) workouts['treino-a'] = savedWorkoutsA;
+
             const savedWorkoutsB = JSON.parse(localStorage.getItem('treino-b'));
-            if (savedWorkoutsB) {
-                workouts['treino-b'] = savedWorkoutsB;
-            }
+            if (savedWorkoutsB) workouts['treino-b'] = savedWorkoutsB;
+
             const savedWorkoutsC = JSON.parse(localStorage.getItem('treino-c'));
-            if (savedWorkoutsC) {
-                workouts['treino-c'] = savedWorkoutsC;
-            }
-            
+            if (savedWorkoutsC) workouts['treino-c'] = savedWorkoutsC;
+
+            const savedTabNames = JSON.parse(localStorage.getItem('tabNames'));
+            if (savedTabNames) tabNames = savedTabNames;
+
             const lastActiveTab = localStorage.getItem('lastActiveTab');
             showTab(lastActiveTab || 'treino-a');
             updateLastWorkoutInfo();
