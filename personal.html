@@ -115,7 +115,10 @@
             justify-content: center;
             align-items: center;
         }
-
+        .ad-card {
+            text-decoration: none;
+            color: inherit;
+        }
         /* Estilo do rodapé de sobre.html */
         .footer { text-align: center; padding: 8px 16px; color: var(--secondary-text-color); font-size: 0.875rem; background-color: #282828; margin-top: auto; width: 100%; }
         
@@ -191,13 +194,15 @@
                 </div>
             </div>
 
-            <div class="personal-card ad-card" onclick="window.open('https://wa.me/+5511999999999?text=Olá%2C%20gostaria%20de%20saber%20mais%20sobre%20como%20anunciar%20meu%20perfil%20no%20app%20Meu%20Treino.', '_blank');">
+            <a href="mailto:contato.meutreino@outlook.com?subject=Anunciar%20no%20App%20Meu%20Treino&body=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20como%20anunciar%20meu%20perfil%20no%20app%20Meu%20Treino." 
+              class="personal-card ad-card" 
+              target="_blank">
                 <h2>Anuncie Seu Perfil Aqui</h2>
                 <p>Quer aparecer para milhares de usuários e conseguir novos alunos? Clique aqui para saber mais.</p>
-                <div class="contact-links">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-            </div>
+                 <div class="contact-links">
+                  <i class="fas fa-bullhorn"></i>
+                 </div>
+            </a>
         </div>
 
         <footer class="footer">
