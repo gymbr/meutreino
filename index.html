@@ -7,6 +7,7 @@
     <link rel="icon" href="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/favicon.png" type="image/jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
     <style>
         :root {
             --bg-color: #212121;
@@ -530,6 +531,7 @@
 
         <div id="fab-buttons-container" class="fab-buttons-container">
             <div class="fab-button" onclick="addExercise()"><i class="fas fa-plus"></i></div>
+            <div class="fab-button" onclick="shareCustomWorkout()"><i class="fas fa-share-alt"></i></div>
             <div class="fab-button" onclick="saveWorkoutToFile()"><i class="fas fa-file-download"></i></div>
             <div class="fab-button" onclick="loadWorkoutFromFile()"><i class="fas fa-file-upload"></i></div>
             <div class="fab-button" onclick="clearCache()"><i class="fas fa-trash-alt"></i></div>
@@ -582,13 +584,12 @@
         const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
         let currentActiveInput = null;
 
-        // --- AJUSTE: Variáveis para cache de ícones ---
+        // --- Variáveis para cache de ícones ---
         let defaultImage = "https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/icone_treino.jpg";
         const iconUrl = 'https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/icone_treino.jpg';
         const faviconUrl = 'https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/favicon.png';
         const iconCacheKey = 'appIconBase64';
         const faviconCacheKey = 'appFaviconBase64';
-        // --- FIM DO AJUSTE ---
 
         // --- Clock Function ---
         function updateClock() {
@@ -620,7 +621,7 @@
             };
         }
 
-        // --- AJUSTE: Função para cachear imagens como Base64 ---
+        // --- Função para cachear imagens como Base64 ---
         async function cacheImageAsBase64(key, url, elementSelector, attribute) {
             try {
                 const cachedImage = localStorage.getItem(key);
@@ -654,7 +655,6 @@
                 return url; // Retorna a URL original em caso de erro
             }
         }
-        // --- FIM DO AJUSTE ---
 
         async function carregarExercicios() {
             const cachedExercises = localStorage.getItem('exerciciosList');
@@ -662,8 +662,7 @@
                 try {
                     exerciciosList = JSON.parse(cachedExercises);
                     console.log("Exercícios carregados do cache!");
-                    iniciarApp();
-                    return;
+                    return; 
                 } catch (error) {
                     console.error("Erro ao carregar exercícios do cache, tentando download:", error);
                     localStorage.removeItem('exerciciosList');
@@ -676,11 +675,9 @@
                 exerciciosList = await response.json();
                 localStorage.setItem('exerciciosList', JSON.stringify(exerciciosList));
                 console.log("Exercícios carregados da internet e salvos no cache!");
-                iniciarApp();
             } catch (error) {
                 console.error("Não foi possível carregar o arquivo de exercícios:", error);
                 alert("Erro ao carregar a lista de exercícios. Verifique o console para mais detalhes. O aplicativo usará apenas os treinos salvos localmente.");
-                iniciarApp();
             }
         }
 
@@ -1090,25 +1087,112 @@
                 }
             });
         }
+        
+        // --- INÍCIO: FUNÇÃO DE COMPARTILHAMENTO DE TREINO PERSONALIZADO (COM COMPRESSÃO) ---
+        async function shareCustomWorkout() {
+            const workoutData = { workouts, tabNames };
+            try {
+                const jsonString = JSON.stringify(workoutData);
+                // Comprime a string JSON para uma string segura para URL
+                const compressedString = LZString.compressToEncodedURIComponent(jsonString);
+                
+                // Usa um novo formato de hash para o link comprimido
+                const shareableLink = `${window.location.origin}${window.location.pathname}#import-compressed=${compressedString}`;
+                
+                const shareData = {
+                    title: 'Meu Treino Personalizado',
+                    text: 'Confira meu treino personalizado!',
+                    url: shareableLink
+                };
 
-        // --- AJUSTE: Função de inicialização do App ---
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(shareableLink);
+                    alert('Link do seu treino personalizado foi copiado para a área de transferência!');
+                }
+            } catch (error) {
+                console.error("Erro ao criar o link de compartilhamento:", error);
+                alert("Não foi possível gerar o link de compartilhamento. O treino pode ser muito grande.");
+            }
+        }
+        // --- FIM: FUNÇÃO DE COMPARTILHAMENTO ---
+
+
+        // --- INÍCIO: LÓGICA DE IMPORTAÇÃO DE TREINO PELA URL (UNIFICADA E COM DESCOMPRESSÃO) ---
+        async function handleUrlImport() {
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // 1. Tenta importar treino COMPRIMIDO pelo HASH (#)
+            if (window.location.hash.startsWith('#import-compressed=')) {
+                const compressedData = window.location.hash.substring('#import-compressed='.length);
+                if (confirm("Você gostaria de importar um treino personalizado? Isso substituirá seu treino atual.")) {
+                    try {
+                        // Descomprime a string da URL para a string JSON original
+                        const jsonString = LZString.decompressFromEncodedURIComponent(compressedData);
+                        if (!jsonString) throw new Error("Falha na descompressão dos dados.");
+
+                        const workoutData = JSON.parse(jsonString);
+                        if (workoutData.workouts && workoutData.tabNames) {
+                            localStorage.setItem('workouts', JSON.stringify(workoutData.workouts));
+                            localStorage.setItem('tabNames', JSON.stringify(workoutData.tabNames));
+                            localStorage.setItem('lastActiveTab', Object.keys(workoutData.workouts)[0]);
+                            alert("Treino personalizado importado com sucesso!");
+                        } else {
+                            throw new Error("Dados do treino personalizado são inválidos.");
+                        }
+                    } catch (error) {
+                        console.error("Erro ao importar treino personalizado:", error);
+                        alert("Não foi possível importar o treino personalizado. O link pode estar corrompido.");
+                    }
+                }
+                window.location.href = window.location.pathname;
+                return true;
+            }
+
+            // 2. Tenta importar treino da biblioteca pelo PARÂMETRO (?)
+            const urlParams = new URLSearchParams(window.location.search);
+            const workoutFile = urlParams.get('import-workout');
+            if (workoutFile) {
+                if (confirm("Você gostaria de importar um treino da biblioteca? Isso substituirá seu treino atual.")) {
+                    try {
+                        const response = await fetch(`./treinos/${workoutFile}`);
+                        if (!response.ok) throw new Error('Arquivo de treino não encontrado.');
+                        const workoutData = await response.json();
+
+                        localStorage.setItem('workouts', JSON.stringify(workoutData.workouts));
+                        localStorage.setItem('tabNames', JSON.stringify(workoutData.tabNames));
+                        localStorage.setItem('lastActiveTab', Object.keys(workoutData.workouts)[0]);
+                        alert("Treino importado e salvo com sucesso!");
+                    } catch (error) {
+                        console.error("Erro ao importar o treino:", error);
+                        alert("Ocorreu um erro ao tentar importar o treino.");
+                    }
+                }
+                window.location.href = window.location.pathname;
+                return true;
+            }
+
+            return false; // Nenhuma importação a ser feita
+        }
+        // --- FIM: LÓGICA DE IMPORTAÇÃO ---
+
+        // --- Função de inicialização do App ---
         async function initializeApp() {
-            // Cacheia os ícones e os aplica aos elementos
             cacheImageAsBase64(faviconCacheKey, faviconUrl, 'link[rel="icon"]', 'href');
             const mainIconBase64 = await cacheImageAsBase64(iconCacheKey, iconUrl, '.header .title img', 'src');
-
-            // Atualiza a variável global da imagem padrão com a versão em cache
             defaultImage = mainIconBase64; 
-
-            // Carrega os dados dos exercícios
-            carregarExercicios();
-
-            // Inicia o relógio
+            await carregarExercicios();
+            iniciarApp();
             updateClock();
         }
 
-        document.addEventListener('DOMContentLoaded', initializeApp);
-        // --- FIM DO AJUSTE ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const importAttempted = await handleUrlImport();
+            if (!importAttempted) {
+                initializeApp();
+            }
+        });
     </script>
 </body>
 </html>
