@@ -797,7 +797,7 @@
                 const addTabBtn = document.createElement('div');
                 addTabBtn.className = 'add-tab-btn';
                 addTabBtn.innerHTML = '<i class="fas fa-plus"></i>';
-                addTabBtn.onclick = addTab;
+                addTabBtn.addEventListener('pointerup', addTab); // <<< CORREÇÃO APLICADA AQUI
                 tabsContainer.appendChild(addTabBtn);
             }
         }
