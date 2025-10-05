@@ -176,7 +176,7 @@
 
         // dica opcional: tentar registrar service worker caso exista (não é obrigatório para o prompt, mas recomendado)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/MeuTreino/sw.js').then(() => {
+            navigator.serviceWorker.register('/meutreino/sw.js').then(() => {
                 console.log('Service Worker registrado (se sw.js existir).');
             }).catch((err) => {
                 // se não existir, ignora — registro não é obrigatório
