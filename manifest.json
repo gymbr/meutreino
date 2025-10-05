@@ -1,7 +1,7 @@
 {
   "name": "Meu Treino",
   "short_name": "Meu Treino",
-  "start_url": "baixar_aplicativo",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffc107",
