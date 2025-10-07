@@ -61,7 +61,7 @@
         .side-menu .sponsorship-box img { max-width: 100%; border-radius: var(--border-radius); width: 100%; }
         #page-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; display: none; }
         #page-overlay.show { display: block; }
-        
+
         .selectors-box { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
         .selector-container { flex: 1; min-width: 250px; }
         .selector-container label { display: block; margin-bottom: 8px; color: var(--secondary-text-color); }
@@ -85,7 +85,7 @@
             gap: 8px;
         }
         .action-btn:hover { background-color: #ffda6b; }
-        
+
         /* --- ESTILOS DAS ABAS (TABS) --- */
         .tabs {
             display: flex;
@@ -137,7 +137,7 @@
             text-align: center;
         }
         .professional-advice p { margin: 0; }
-        
+
         @media (max-width: 600px) { .side-menu.open { width: min(var(--menu-width), 80vw); } }
     </style>
 </head>
@@ -159,7 +159,7 @@
         </div>
     </div>
     <div id="page-overlay" onclick="closeNav()"></div>
-    
+
     <div id="main-content-wrapper">
         <div class="header">
             <span class="menu-icon" onclick="openNav()">&#9776;</span>
@@ -176,21 +176,26 @@
 
             <div class="selectors-box">
                 <div class="selector-container">
-                    <label for="category-select">1. Escolha o Objetivo:</label>
-                    <select id="category-select">
-                        <option value="">-- Escolha um objetivo --</option>
+                    <label for="gender-select">1. Sexo:</label>
+                    <select id="gender-select">
+                        <option value="masculino" selected>Masculino</option>
+                        <option value="feminino">Feminino</option>
                     </select>
                 </div>
                 <div class="selector-container">
-                    <label for="workout-select">2. Escolha o Treino:</label>
+                    <label for="category-select">2. Nível:</label>
+                    <select id="category-select">
+                    </select>
+                </div>
+                <div class="selector-container">
+                    <label for="workout-select">3. Treino:</label>
                     <select id="workout-select" disabled>
-                        <option value="">Selecione um objetivo</option>
                     </select>
                 </div>
             </div>
 
             <div id="actions-container"></div>
-            
+
             <div id="tabs-container" class="tabs"></div>
 
             <div id="workout-display">
@@ -201,7 +206,7 @@
                 <p><strong>Atenção:</strong> Antes de iniciar qualquer programa de treino, consulte um profissional de educação física ou um médico para garantir que os exercícios são adequados para você.</p>
             </div>
         </div>
-        
+
         <footer class="footer">Feito por quem treina, para quem treina. 💪❤️</footer>
     </div>
 
@@ -210,18 +215,10 @@
         function openNav() { document.getElementById("side-menu").classList.add('open'); document.getElementById("page-overlay").classList.add('show'); }
         function closeNav() { document.getElementById("side-menu").classList.remove('open'); document.getElementById("page-overlay").classList.remove('show'); }
         document.addEventListener('keydown', (event) => { if (event.key === "Escape") closeNav(); });
-        
+
         // --- LISTA DE TREINOS ---
         const listaDeTreinos = [
-            {
-                "nome": "Emagrecer",
-                "prefixo": "emagrecer",
-                "treinos": [
-                    { "arquivo": "emagrecer1(Foco Cardio).json", "titulo": "Foco Cardio" },
-                    { "arquivo": "emagrecer2(Alta Intensidade).json", "titulo": "Alta Intensidade" },
-                    { "arquivo": "emagrecer3(Queima Total).json", "titulo": "Queima Total" }
-                ]
-            },
+            
             {
                 "nome": "Iniciante",
                 "prefixo": "iniciante",
@@ -256,11 +253,37 @@
         document.addEventListener('DOMContentLoaded', () => {
             const categorySelect = document.getElementById('category-select');
             const workoutSelect = document.getElementById('workout-select');
-            
+
+            // 1. Popula o seletor de objetivos
             populateCategorySelect();
 
+            // 2. Define "Iniciante" como o objetivo padrão
+            categorySelect.value = 'iniciante';
+
+            // 3. Popula os treinos com base no objetivo padrão
+            populateWorkoutSelect(categorySelect.value);
+
+            // 4. Define "Adaptação Geral" como o treino padrão
+            workoutSelect.value = 'iniciante1(Adaptação Geral).json';
+
+            // 5. Carrega e exibe o treino padrão
+            fetchAndRenderWorkout(workoutSelect.value);
+
+
             categorySelect.addEventListener('change', () => {
+                // Popula a lista de treinos quando o objetivo muda
                 populateWorkoutSelect(categorySelect.value);
+                // Carrega automaticamente o primeiro treino da nova lista
+                if (workoutSelect.options.length > 0) {
+                    workoutSelect.value = workoutSelect.options[0].value;
+                    fetchAndRenderWorkout(workoutSelect.value);
+                } else {
+                    // Limpa a tela se a nova categoria não tiver treinos
+                    document.getElementById('workout-display').innerHTML = '<p class="info-message">Nenhum treino encontrado para esta categoria.</p>';
+                    document.getElementById('actions-container').innerHTML = '';
+                    document.getElementById('tabs-container').innerHTML = '';
+                    currentWorkoutData = null;
+                }
             });
 
             workoutSelect.addEventListener('change', () => {
@@ -272,6 +295,7 @@
 
         function populateCategorySelect() {
             const categorySelect = document.getElementById('category-select');
+            categorySelect.innerHTML = ''; // Limpa quaisquer opções pré-existentes
             listaDeTreinos.forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat.prefixo;
@@ -282,15 +306,7 @@
 
         function populateWorkoutSelect(selectedCategoryPrefix) {
             const workoutSelect = document.getElementById('workout-select');
-            const display = document.getElementById('workout-display');
-            const actionsContainer = document.getElementById('actions-container');
-            const tabsContainer = document.getElementById('tabs-container');
-
-            workoutSelect.innerHTML = '<option value="">-- Escolha um treino --</option>';
-            display.innerHTML = '<p class="info-message">Selecione um treino na lista acima.</p>';
-            actionsContainer.innerHTML = ''; 
-            tabsContainer.innerHTML = '';
-            currentWorkoutData = null;
+            workoutSelect.innerHTML = ''; // Remove opções antigas, incluindo a de "escolha um treino"
 
             if (!selectedCategoryPrefix) {
                 workoutSelect.disabled = true;
@@ -299,7 +315,7 @@
 
             const category = listaDeTreinos.find(cat => cat.prefixo === selectedCategoryPrefix);
 
-            if (category && category.treinos) {
+            if (category && category.treinos && category.treinos.length > 0) {
                 category.treinos.forEach(treino => {
                     const option = document.createElement('option');
                     option.value = treino.arquivo;
@@ -316,7 +332,7 @@
             const display = document.getElementById('workout-display');
             const actionsContainer = document.getElementById('actions-container');
             const tabsContainer = document.getElementById('tabs-container');
-            
+
             display.innerHTML = '<p class="info-message">Carregando treino...</p>';
             tabsContainer.innerHTML = '';
             actionsContainer.innerHTML = '';
@@ -325,7 +341,7 @@
             try {
                 const response = await fetch(`./treinos/${workoutFile}`);
                 if (!response.ok) throw new Error(`Arquivo não encontrado: ${workoutFile}`);
-                
+
                 const workoutData = await response.json();
                 currentWorkoutData = workoutData;
 
@@ -337,7 +353,7 @@
                 display.innerHTML = `<p class="error-message">Ops! Ocorreu um erro ao carregar o treino.</p>`;
             }
         }
-        
+
         function renderWorkoutWithTabs(data) {
             const display = document.getElementById('workout-display');
             const tabsContainer = document.getElementById('tabs-container');
@@ -365,16 +381,16 @@
                 const workoutContent = document.createElement('div');
                 workoutContent.id = `content-${dayKey}`;
                 workoutContent.className = 'workout-content';
-                
+
                 const dayCard = document.createElement('div');
                 dayCard.className = 'workout-day-card';
 
                 const exercisesArray = data.workouts[dayKey];
-                
+
                 exercisesArray.forEach(exercise => {
                     const exerciseItem = document.createElement('div');
                     exerciseItem.className = 'exercise-item';
-                    
+
                     exerciseItem.innerHTML = `
                         <img src="${exercise.image}" alt="${exercise.name}" onerror="this.src='https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/icone_treino.jpg';">
                         <div class="exercise-details">
@@ -416,7 +432,7 @@
             saveButton.innerHTML = `<i class="fas fa-save"></i> Salvar Treino`;
             saveButton.onclick = saveToMyWorkouts;
             actionsContainer.appendChild(saveButton);
-            
+
             // Botão de Download
             const downloadButton = document.createElement('button');
             downloadButton.className = 'action-btn';
@@ -440,7 +456,7 @@
 
             const categorySelect = document.getElementById('category-select');
             const workoutSelect = document.getElementById('workout-select');
-            
+
             const categoryName = categorySelect.options[categorySelect.selectedIndex].text.replace(/ /g, '_');
             const workoutName = workoutSelect.options[workoutSelect.selectedIndex].text.replace(/ /g, '_');
             const filename = `${categoryName}_${workoutName}.json`;
@@ -474,7 +490,7 @@
                 // Chama a API para encurtar o link
                 const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(urlLonga)}`);
                 if (!response.ok) throw new Error('A resposta da API de encurtamento não foi bem-sucedida.');
-                
+
                 const data = await response.json();
                 const shortUrl = data.shorturl;
 
