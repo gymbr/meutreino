@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Descubra a missão e os recursos do Meu Treino, o aplicativo web feito para simplificar e motivar sua jornada fitness.">
+    
     <title>Sobre - Meu Treino</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/favicon.png" type="image/jpg">
+    
+    <link rel="icon" href="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/favicon.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Variáveis Globais e Reset */
         :root {
             --bg-color: #212121;
             --card-color: #2c2c2c;
@@ -17,50 +21,255 @@
             --input-bg-color: #383838;
             --menu-width: 250px;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
-        *, *::before, *::after { box-sizing: border-box; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--input-bg-color); position: sticky; top: 0; z-index: 10; background-color: var(--bg-color); }
-        .header .menu-icon { font-size: 1.5rem; cursor: pointer; color: var(--primary-color); padding: 5px; }
-        .header .header-link { text-decoration: none; color: inherit; position: absolute; left: 50%; transform: translateX(-50%); }
-        .header .title { font-size: 1.25rem; font-weight: bold; display: flex; align-items: center; }
-        .header .title img { width: 24px; height: 24px; margin-right: 8px; border-radius: 5px; } /* Adicionado */
-        .header .placeholder { width: 40px; }
-        .side-menu { height: 100%; width: 0; position: fixed; z-index: 1001; top: 0; left: 0; background-color: var(--card-color); overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 2px 0 5px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
-        .side-menu.open { width: var(--menu-width); }
-        .side-menu .close-btn { position: absolute; top: 15px; right: 25px; font-size: 2rem; color: var(--primary-color); cursor: pointer; }
-        .side-menu a { padding: 15px 20px; text-decoration: none; font-size: 1.1rem; color: var(--text-color); display: block; transition: 0.3s; border-bottom: 1px solid var(--input-bg-color); }
-        .side-menu a:hover { background-color: #575757; color: var(--primary-color); }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Melhorias de Acessibilidade para Foco */
+        :focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Menu Lateral */
+        .side-menu {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1001;
+            top: 0;
+            left: 0;
+            background-color: var(--card-color);
+            overflow-x: hidden;
+            transition: width 0.3s ease;
+            padding-top: 60px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .side-menu.open {
+            width: var(--menu-width);
+        }
+
+        .side-menu .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0 10px;
+        }
+
+        .side-menu a {
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            border-bottom: 1px solid var(--input-bg-color);
+        }
+
+        .side-menu a:hover {
+            background-color: #575757;
+            color: var(--primary-color);
+        }
+
         .side-menu a i {
-          color: var(--primary-color);
-          width: 20px; /* garante alinhamento */
-          text-align: center;
-            }
-        .side-menu .close-btn,
-        .sponsorship-box a {
+            color: var(--primary-color);
+            width: 20px;
+            text-align: center;
+        }
+        
+        .side-menu .close-btn, .sponsorship-box a {
             border-bottom: none;
         }
-        .side-menu .sponsorship-box { margin-top: auto; padding: 20px; text-align: center; width: 100%; }
-        .side-menu .sponsorship-box img { max-width: 100%; border-radius: var(--border-radius); width: 100%; } /* Adicionado */
-        #page-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; display: none; transition: opacity 0.3s; }
-        #page-overlay.show { display: block; }
-        .container { max-width: 800px; margin: 20px auto; padding: 0 16px; }
-        .card { background-color: var(--card-color); padding: 20px; border-radius: var(--border-radius); margin-bottom: 20px; }
-        .card h1 { font-size: 1.5rem; border-bottom: 1px solid var(--input-bg-color); padding-bottom: 10px; margin-bottom: 20px; color: var(--primary-color); }
-        .card h2 { font-size: 1.2rem; margin-top: 20px; margin-bottom: 10px; color: var(--primary-color); }
-        .card p, .card li { font-size: 1rem; line-height: 1.5; color: var(--text-color); }
-        .card ul { list-style-type: none; padding: 0; }
-        .card li { margin-bottom: 10px; position: relative; padding-left: 20px; }
-        .card li::before { content: "•"; position: absolute; left: 0; color: var(--primary-color); font-weight: bold; }
-        .footer { text-align: center; padding: 8px 16px; color: var(--secondary-text-color); font-size: 0.875rem; background-color: #282828; margin-top: auto; width: 100%; }
+
+        .sponsorship-box {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .sponsorship-box img {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+        }
+
+        #page-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #page-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Cabeçalho */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--input-bg-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: var(--bg-color);
+        }
+
+        .header .menu-toggle {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            background: none;
+            border: none;
+            padding: 5px;
+            z-index: 1; /* Garante que fique acima do link central */
+        }
+        
+        .header-link {
+            text-decoration: none;
+            color: inherit;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-link .title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .header-link img {
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
+        }
+
+        .header .placeholder {
+            width: 40px; /* Mantém o espaço para centralização */
+        }
+
+        /* Conteúdo Principal */
+        main {
+            flex-grow: 1;
+        }
+
+        .page-main-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 1.6rem;
+            margin-top: 16px;
+            margin-bottom: 24px;
+            flex-grow: 1;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px 20px;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--input-bg-color);
+            padding-bottom: 5px;
+        }
+
+        .card p, .card li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+        
+        .card > p:first-of-type {
+            margin-top: 0;
+        }
+
+        .card ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .card li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .card li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Rodapé */
+        .footer {
+            text-align: center;
+            padding: 12px 16px;
+            color: var(--secondary-text-color);
+            font-size: 0.875rem;
+            background-color: #282828;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        /* Media Queries */
         @media (max-width: 600px) {
-            .side-menu.open { width: min(var(--menu-width), 80vw); }
+            .side-menu.open {
+                width: min(var(--menu-width), 80vw);
+            }
+            
         }
     </style>
 </head>
 <body>
 
-    <div id="side-menu" class="side-menu">
-        <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">&times;</a>
+    <nav id="side-menu" class="side-menu">
+        <button class="close-btn" onclick="closeNav()" aria-label="Fechar menu">&times;</button>
         <a href="."><i class="fa-solid fa-dumbbell"></i> Meu Treino</a>
         <a href="todos-exercicios"><i class="fa-solid fa-list"></i> Todos Exercícios</a>
         <a href="biblioteca-de-treinos"><i class="fa-solid fa-book"></i> Biblioteca de Treinos</a>
@@ -69,59 +278,73 @@
         <a href="baixar-aplicativo"><i class="fa-solid fa-download"></i> Baixar Aplicativo</a>
         <a href="sobre"><i class="fa-solid fa-circle-info"></i> Sobre</a>
         <div class="sponsorship-box">
-            <a style="display:none;"><img alt="Hits" src="https://hits.sh/gymbr.github.io/meutreino/sobre.html.svg"/></a>
             <a href="mailto:contato.meutreino@outlook.com?subject=Anunciar%20no%20App%20Meu%20Treino&body=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20como%20anunciar%20meu%20perfil%20no%20app%20Meu%20Treino.">
                 <img src="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/anuncie_aqui.gif" alt="Anuncie Aqui">
             </a>
         </div>
-    </div>
+    </nav>
     <div id="page-overlay" onclick="closeNav()"></div>
 
-    <div id="main-content-wrapper">
-        <div class="header">
-            <span class="menu-icon" onclick="openNav()">&#9776;</span>
-            <a href="." class="header-link">
-                <span class="title">
-                    <img src="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/icone_treino.jpg" alt="Ícone de Treino">
-                    Meu Treino
-                </span>
-            </a>
-            <span class="placeholder"></span>
-        </div>
+    <header class="header">
+        <button class="menu-toggle" onclick="openNav()" aria-label="Abrir menu" aria-controls="side-menu" aria-expanded="false">&#9776;</button>
+        <a href="." class="header-link">
+            <img src="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/icone_treino.jpg" alt="Ícone Meu Treino">
+            <span class="title">Meu Treino</span>
+        </a>
+        <div class="placeholder"></div>
+    </header>
 
-        <div class="container">
-            <div class="card">
-                <h1>Sobre o Meu Treino</h1>
-                <p>O Meu Treino é uma aplicação web simples e intuitiva, desenvolvida por entusiastas do fitness para ajudar pessoas a organizarem e acompanharem seus treinos de forma eficiente. Nossa missão é tornar a jornada fitness mais acessível, organizada e motivadora para todos.</p>
-                <h2>Nossos Recursos Principais</h2>
+    <main>
+        <h1 class="page-main-title">Sobre o Meu Treino</h1>
+        <section class="container">
+            <article class="card">
+                <p>O <strong>Meu Treino</strong> é uma aplicação web simples e intuitiva, desenvolvida por entusiastas do fitness para ajudar pessoas a organizarem e acompanharem seus treinos de forma eficiente. Nossa missão é tornar a jornada fitness mais acessível, organizada e motivadora para todos.</p>
+                
+                <h2>Recursos e Funcionalidades</h2>
                 <ul>
-                    <li>Criação e gerenciamento de rotinas de treino (Treino A, B, C, D, E).</li>
-                    <li>Adicionar, editar e remover exercícios facilmente.</li>
-                    <li>Acompanhar séries, repetições e peso para cada exercício.</li>
-                    <li>Marcar exercícios como concluídos e monitorar seu progresso.</li>
-                    <li>Visualizar imagens e descrições detalhadas de cada exercício para garantir a execução correta.</li>
-                    <li>Salvar e carregar seus treinos, garantindo que você nunca perca seu progresso.</li>
-                    <li>Encontrar o Personal Trainer ideal para aprimorar sua rotina e seus treinos.</li>
+                    <li><strong>Gerenciamento Total de Treinos:</strong> Crie, edite e organize até 5 rotinas de treino (Treino A, B, C...) com reordenação de exercícios e abas via arrastar e soltar (Drag & Drop).</li>
+                    <li><strong>Controle de Detalhes:</strong> Adicione, edite e remova exercícios facilmente, acompanhando séries, repetições e o peso (em Kg) para cada um.</li>
+                    <li><strong>Acompanhamento de Progresso:</strong> Marque exercícios como concluídos e receba um pop-up de "Parabéns!" ao finalizar o treino.</li>
+                    <li><strong>Compartilhamento Exclusivo:</strong> Gere um link encurtado e seguro do seu treino para compartilhar e permitir que amigos importem sua rotina com um clique.</li>
+                    <li><strong>Autocompletar Inteligente:</strong> Utilize o autocompletar para buscar exercícios, preenchendo automaticamente o nome e a imagem correspondente.</li>
+                    <li><strong>Visualização Detalhada:</strong> Clique na imagem do exercício para ver GIFs, descrições, grupo muscular e instruções de execução.</li>
+                    <li><strong>Backup e Restauração:</strong> Faça o download (backup) ou upload (restauração) dos seus treinos em um arquivo local.</li>
+                    <li><strong>Ferramentas de Saúde:</strong> Acesse a Calculadora de Saúde para medir seu IMC e calcular a Taxa Metabólica.</li>
+                    <li><strong>Informação Rápida:</strong> Visualize o Último Treino concluído e use o Relógio Digital no cabeçalho para controlar seu tempo de descanso.</li>
                 </ul>
-                <p>Acreditamos que a consistência é a chave para o sucesso na jornada fitness, e o Meu Treino foi desenvolvido para te ajudar a manter essa consistência. Treine mais inteligente, não mais difícil.</p>
-            </div>
-        </div>
+                <p>Acreditamos que a consistência é a chave para o sucesso. O Meu Treino foi desenvolvido para te ajudar a manter o foco. Treine mais inteligente, não mais difícil.</p>
+            </article>
+        </section>
+    </main>
 
-        <footer class="footer">
-            Feito por quem treina, para quem treina. 💪❤️
-        </footer>
-    </div>
+    <footer class="footer">
+        Feito por quem treina, para quem treina. 💪❤️
+    </footer>
 
     <script>
+        // Cache DOM elements for better performance
+        const sideMenu = document.getElementById("side-menu");
+        const pageOverlay = document.getElementById("page-overlay");
+        const menuToggleBtn = document.querySelector(".menu-toggle");
+
         function openNav() {
-            document.getElementById("side-menu").classList.add('open');
-            document.getElementById("page-overlay").classList.add('show');
+            sideMenu.classList.add('open');
+            pageOverlay.classList.add('show');
+            menuToggleBtn.setAttribute('aria-expanded', 'true');
         }
+
         function closeNav() {
-            document.getElementById("side-menu").classList.remove('open');
-            document.getElementById("page-overlay").classList.remove('show');
+            sideMenu.classList.remove('open');
+            pageOverlay.classList.remove('show');
+            menuToggleBtn.setAttribute('aria-expanded', 'false');
         }
-        document.addEventListener('keydown', (event) => { if (event.key === "Escape") closeNav(); });
+
+        // Close menu with the Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === "Escape") {
+                closeNav();
+            }
+        });
     </script>
 </body>
 </html>
