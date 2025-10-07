@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Baixar Aplicativo - Meu Treino</title>
-    <!-- === CHAME AQUI O MANIFEST (ajuste o caminho se necessário) === -->
     <link rel="manifest" href="manifest.json">
-    <!-- Opcional: meta theme color -->
     <meta name="theme-color" content="#ffc107">
     <link rel="icon" href="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/favicon.png" type="image/jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -44,12 +42,43 @@
 
         .container { flex-grow: 1; padding: 20px; max-width: 900px; margin: 0 auto; text-align: center; }
         .page-title { color: var(--primary-color); text-align: center; font-size: 1.6rem; margin-top: 16px; margin-bottom: 24px; }
-        .card p { font-size: 1rem; line-height: 1.5; color: var(--text-color); margin: 0 0 15px; }
+
+        /* Estilo do card de avaliação */
+        .card {
+            background-color: var(--card-color);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        .card p { 
+            font-size: 1rem; 
+            line-height: 1.6; 
+            color: var(--text-color); 
+            margin-top: 0; 
+            margin-bottom: 24px; 
+        }
 
         .btn-container { display: flex; flex-direction: column; gap: 15px; margin: 30px auto 0; width: 100%; max-width: 200px; }
         .download-link { display: block; text-decoration: none; padding: 0; border-radius: var(--border-radius); overflow: hidden; transition: transform 0.2s; line-height: 0; cursor: pointer; position: relative; }
         .download-link:hover { transform: translateY(-2px); }
         .download-link img { width: 100%; height: auto; display: block; border-radius: var(--border-radius); object-fit: cover; }
+
+        /* Estilo do botão de avaliação */
+        .btn-review {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #1a1a1a;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .btn-review:hover {
+            background-color: #ffca28;
+            transform: scale(1.05);
+        }
 
         .footer { text-align: center; padding: 8px 16px; color: var(--secondary-text-color); font-size: 0.875rem; background-color: #282828; margin-top: auto; width: 100%; }
 
@@ -102,11 +131,21 @@
                     <img src="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/download2.png" alt="Download na APKPure">
                 </a>
 
-                <!-- Botão que dispara o prompt de instalação (tem id para JS) -->
                 <a id="installAppBtn" class="download-link" role="button" tabindex="0" aria-label="Adicionar à tela inicial">
                     <img src="https://raw.githubusercontent.com/gymbr/meutreino/refs/heads/main/img/download3.png" alt="Adicionar à tela inicial">
                 </a>
             </div>
+
+            <hr style="border-color: var(--input-bg-color); margin: 48px auto;">
+
+            <h2 class="page-title" style="font-size: 1.5rem;">Avalie o Nosso App</h2>
+            <article class="card">
+                <p>Sua opinião é muito importante para nós! Se você gosta do aplicativo, por favor, considere deixar uma avaliação. Isso nos ajuda a crescer e a motivar outros usuários a começarem sua jornada fitness.</p>
+                <a href="https://apkpure.com/br/reviews/com.wMeuTreino_19109142" class="btn-review" target="_blank" rel="noopener noreferrer">
+                    ★★★★★ Deixar uma Avaliação
+                </a>
+            </article>
+
         </div>
 
         <footer class="footer">
